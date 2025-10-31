@@ -1,12 +1,15 @@
-class MetricRegistry:
-    def __init__(self):
-        self.collectors = []
+from typing import List, Dict, Any
 
-    def register_collector(self, collector):
+
+class MetricRegistry:
+    def __init__(self) -> None:
+        self.collectors: List[Any] = []
+
+    def register_collector(self, collector: Any) -> None:
         self.collectors.append(collector)
 
-    def get_metrics(self):
-        all_metrics = []
+    def get_metrics(self) -> str:
+        all_metrics: List[Dict[str, Any]] = []
         for collector in self.collectors:
             try:
                 metrics = collector.collect_all()
