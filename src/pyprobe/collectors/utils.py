@@ -9,5 +9,5 @@ def metric(fn: Callable):
     def wrapper(self, *args, **kwargs):
         return fn(self, *args, **kwargs)
 
-    wrapper.__is_metric__ = True
+    wrapper.__is_metric__ = True  # type: ignore[attr-defined]
     return wrapper

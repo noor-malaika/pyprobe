@@ -6,7 +6,6 @@ from pyprobe.logger import logger
 
 
 class BaseCollector(ABC):
-
     def __init__(self):
         self.logger = logger
         self.metrics: List[Dict[str, Any]] = []

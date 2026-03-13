@@ -39,7 +39,7 @@ def main(argv: List[str] | None = None) -> None:
     Using --metrics prints the current metrics to stdout instead.
     """
     parser = argparse.ArgumentParser(prog="pyprobe")
-    parser.add_argument("--host", default="0.0.0.0", help="Listen host")
+    parser.add_argument("--host", default="127.0.0.1", help="Listen host")
     parser.add_argument("--port", type=int, default=8000, help="Listen port")
     parser.add_argument(
         "--metrics",
