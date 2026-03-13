@@ -1,4 +1,6 @@
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from pyprobe.logger import logger as _logger
 
 
 class MetricRegistry:
@@ -14,8 +16,10 @@ class MetricRegistry:
             try:
                 metrics = collector.collect_all()
                 all_metrics.extend(metrics)
-            except Exception as e:
-                print(f"Error collecting metrics from {collector.__name__}\n{e}")
+            except Exception:
+                _logger.exception(
+                    "Error collecting metrics from %s", collector.__class__.__name__
+                )
         lines = []
         for metric in all_metrics:
             try:
@@ -26,8 +30,8 @@ class MetricRegistry:
                     )
                     key = f"{key}{{{labels}}}"
                 lines.append(f"{key} {metric['value']}")
-            except Exception as e:
-                print(
-                    f"Error preparing metric '{metric.get('name', '<unknown>')}': {e}"
+            except Exception:
+                _logger.exception(
+                    "Error preparing metric '%s'", metric.get("name", "<unknown>")
                 )
         return "\n".join(lines)

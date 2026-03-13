@@ -1,18 +1,20 @@
 import psutil
 from typing import List, Dict, Any
+from pyprobe.collectors.base_collector import BaseCollector
+from pyprobe.collectors.utils import metric
 
 
-class MemoryCollector:
+class MemoryCollector(BaseCollector):
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
+    @metric
     def get_memory_usage(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             keys = ["total", "available", "used", "percent"]
             memory = psutil.virtual_memory()
             for key in keys:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": f"probe_memory_{key}_bytes"
                         if key != "percent"
@@ -22,17 +24,17 @@ class MemoryCollector:
                         "labels": {},
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting memory metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting memory metrics")
+        return self.metrics
 
+    @metric
     def get_swap_usage(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             keys = ["total", "used", "free", "percent"]
             swap = psutil.swap_memory()
             for key in keys:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": f"probe_swap_{key}_bytes"
                         if key != "percent"
@@ -42,15 +44,6 @@ class MemoryCollector:
                         "labels": {},
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting swap memory metrics: {e}")
-        return metrics
-
-    def collect_all(self) -> List[Dict[str, Any]]:
-        metrics = []
-        try:
-            metrics.extend(self.get_memory_usage())
-            metrics.extend(self.get_swap_usage())
-        except Exception as e:
-            print(f"Error collecting memory metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting swap memory metrics")
+        return self.metrics

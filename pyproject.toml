@@ -19,3 +19,9 @@ dev = [
     "pytest-cov>=7.0.0",
     "ruff>=0.14.2",
 ]
+
+[tool.uv]
+package = true
+
+[project.scripts]
+pyprobe = "pyprobe.main:main"
