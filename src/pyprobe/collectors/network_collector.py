@@ -1,13 +1,15 @@
 import psutil
 from typing import List, Dict, Any
+from pyprobe.collectors.base_collector import BaseCollector
+from pyprobe.collectors.utils import metric
 
 
-class NetworkCollector:
+class NetworkCollector(BaseCollector):
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
+    @metric
     def get_net_io_counters(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             io_counters = psutil.net_io_counters()
             keys = [
@@ -21,7 +23,7 @@ class NetworkCollector:
                 "dropout",
             ]
             for key in keys:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": f"probe_network_{key}",
                         "value": getattr(io_counters, key),
@@ -29,18 +31,18 @@ class NetworkCollector:
                         "labels": {},
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting network I/O metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting network I/O metrics")
+        return self.metrics
 
+    @metric
     def get_net_connections(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             keys = ["family", "type", "laddr", "raddr", "status", "pid"]
             connections = psutil.net_connections()
             for connection in connections:
                 for key in keys:
-                    metrics.append(
+                    self.metrics.append(
                         {
                             "name": "probe_network_connection",
                             "value": getattr(connection, key),
@@ -48,15 +50,6 @@ class NetworkCollector:
                             "labels": {"type": key},
                         }
                     )
-        except Exception as e:
-            print(f"Error collecting network connections metrics: {e}")
-        return metrics
-
-    def collect_all(self) -> List[Dict[str, Any]]:
-        metrics = []
-        try:
-            metrics.extend(self.get_net_io_counters())
-            metrics.extend(self.get_net_connections())
-        except Exception as e:
-            print(f"Error collecting network metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting network connections metrics")
+        return self.metrics

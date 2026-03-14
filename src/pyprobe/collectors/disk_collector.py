@@ -1,18 +1,20 @@
 import psutil
 from typing import List, Dict, Any
+from pyprobe.collectors.base_collector import BaseCollector
+from pyprobe.collectors.utils import metric
 
 
-class DiskCollector:
+class DiskCollector(BaseCollector):
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
+    @metric
     def get_disk_usage(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             keys = ["total", "used", "free", "percent"]
             usage = psutil.disk_usage("/")
             for key in keys:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": f"probe_disk_{key}_bytes"
                         if key != "percent"
@@ -22,17 +24,17 @@ class DiskCollector:
                         "labels": {},
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting disk usage metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting disk usage metrics")
+        return self.metrics
 
+    @metric
     def get_disk_io(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             io_counters = psutil.disk_io_counters()
             keys = ["read_bytes", "write_bytes", "read_count", "write_count"]
             for key in keys:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": f"probe_disk_io_{key}",
                         "value": getattr(io_counters, key),
@@ -40,16 +42,16 @@ class DiskCollector:
                         "labels": {},
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting disk I/O metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting disk I/O metrics")
+        return self.metrics
 
+    @metric
     def get_disk_partitions(self) -> List[Dict[str, Any]]:
-        metrics = []
         try:
             partitions = psutil.disk_partitions()
             for partition in partitions:
-                metrics.append(
+                self.metrics.append(
                     {
                         "name": "probe_disk_partition",
                         "value": 1,
@@ -61,16 +63,6 @@ class DiskCollector:
                         },
                     }
                 )
-        except Exception as e:
-            print(f"Error collecting disk partition metrics: {e}")
-        return metrics
-
-    def collect_all(self) -> List[Dict[str, Any]]:
-        metrics = []
-        try:
-            metrics.extend(self.get_disk_usage())
-            metrics.extend(self.get_disk_io())
-            metrics.extend(self.get_disk_partitions())
-        except Exception as e:
-            print(f"Error collecting storage metrics: {e}")
-        return metrics
+        except Exception:
+            self.logger.exception("Error collecting disk partition metrics")
+        return self.metrics
